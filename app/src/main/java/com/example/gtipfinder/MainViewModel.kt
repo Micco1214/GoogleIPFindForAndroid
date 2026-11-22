@@ -19,7 +19,7 @@ data class UiState(
     val total: Int = 0,
     val results: List<IpResult> = emptyList(),
     val message: String = "",
-    val concurrency: String = "64",
+    val concurrency: String = "96",
     val timeoutMs: String = "1500",
     val rounds: String = "3",
     val customUrl: String = "",
@@ -76,7 +76,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         if (_state.value.running || ips.isEmpty()) return
         val s = _state.value
         val cfg = TestConfig(
-            concurrency = (s.concurrency.toIntOrNull() ?: 64).coerceIn(1, 64),
+            concurrency = (s.concurrency.toIntOrNull() ?: 96).coerceIn(1, 128),
             timeoutMs = (s.timeoutMs.toLongOrNull() ?: 1500L).coerceIn(300L, 10000L),
             rounds = (s.rounds.toIntOrNull() ?: 3).coerceIn(1, 10),
         )

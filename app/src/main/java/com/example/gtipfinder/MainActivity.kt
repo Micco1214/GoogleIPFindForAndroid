@@ -122,7 +122,7 @@ fun App(vm: MainViewModel = viewModel()) {
                 // ---- 测速参数 ----
                 item {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        NumField("并发(≤64)", s.concurrency, !s.running, Modifier.weight(1f)) { v ->
+                        NumField("并发(≤128)", s.concurrency, !s.running, Modifier.weight(1f)) { v ->
                             vm.edit { it.copy(concurrency = v) }
                         }
                         NumField("超时 ms", s.timeoutMs, !s.running, Modifier.weight(1f)) { v ->
@@ -163,9 +163,11 @@ fun App(vm: MainViewModel = viewModel()) {
                                 modifier = Modifier.weight(1f),
                             ) { Text("复制最快 IP") }
                             OutlinedButton(
-                                onClick = { copy("${s.results.first().ip} $TARGET_HOST") },
+                                onClick = {
+                                    copy(HOSTS_DOMAINS.joinToString("\n") { d -> "${s.results.first().ip} $d" })
+                                },
                                 modifier = Modifier.weight(1f),
-                            ) { Text("复制 hosts 行") }
+                            ) { Text("复制 hosts") }
                         }
                     }
                     item {

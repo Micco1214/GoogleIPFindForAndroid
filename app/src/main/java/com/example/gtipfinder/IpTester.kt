@@ -1,6 +1,8 @@
 package com.example.gtipfinder
 
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -14,14 +16,17 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.IOException
 import java.net.InetAddress
+import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
 const val TARGET_HOST = "translate.googleapis.com"
-const val TEST_URL = "https://$TARGET_HOST/translate_a/single?client=gtx&sl=en&tl=fr&q=a"
+const val TEST_URL = "https://$TARGET_HOST/translate_a/element.js"   // 与 Windows 版默认请求模板一致
+// Windows 版写入 hosts 的两个域名
+val HOSTS_DOMAINS = listOf("translate.googleapis.com", "translate-pa.googleapis.com")
 
 data class TestConfig(
-    val concurrency: Int = 64,
+    val concurrency: Int = 96,
     val timeoutMs: Long = 1500,
     val rounds: Int = 3,
 )
@@ -56,7 +61,11 @@ object IpTester {
     }
 
     /** 测试单个 IP：连续成功 rounds 次才算可用，返回平均/最低延迟。 */
-    suspend fun testIp(ip: String, cfg: TestConfig): IpResult? = withContext(Dispatchers.IO) {
+    suspend fun testIp(
+        ip: String,
+        cfg: TestConfig,
+        dispatcher: CoroutineDispatcher = Dispatchers.IO,
+    ): IpResult? = withContext(dispatcher) {
         val client = try {
             clientFor(ip, cfg.timeoutMs)
         } catch (e: Exception) {
@@ -86,24 +95,33 @@ object IpTester {
         ips: List<String>,
         cfg: TestConfig,
         onProgress: (done: Int, found: List<IpResult>) -> Unit,
-    ): List<IpResult> = coroutineScope {
-        val sem = Semaphore(cfg.concurrency)
-        val done = AtomicInteger(0)
-        val found = ArrayList<IpResult>()
+    ): List<IpResult> {
+        // 专用线程池：并发数可以超过 Dispatchers.IO 默认的 64
+        val pool = Executors.newFixedThreadPool(cfg.concurrency)
+        val dispatcher = pool.asCoroutineDispatcher()
+        try {
+            return coroutineScope {
+                val sem = Semaphore(cfg.concurrency)
+                val done = AtomicInteger(0)
+                val found = ArrayList<IpResult>()
 
-        fun snapshot(): List<IpResult> = synchronized(found) { found.sortedBy { it.avgMs } }
+                fun snapshot(): List<IpResult> = synchronized(found) { found.sortedBy { it.avgMs } }
 
-        ips.map { ip ->
-            async {
-                sem.withPermit {
-                    val r = testIp(ip, cfg)
-                    if (r != null) synchronized(found) { found += r }
-                    val d = done.incrementAndGet()
-                    // 节流：每 10 个或最后一个才刷新 UI
-                    if (d % 10 == 0 || d == ips.size) onProgress(d, snapshot())
-                }
+                ips.map { ip ->
+                    async {
+                        sem.withPermit {
+                            val r = testIp(ip, cfg, dispatcher)
+                            if (r != null) synchronized(found) { found += r }
+                            val d = done.incrementAndGet()
+                            // 节流：每 10 个或最后一个才刷新 UI
+                            if (d % 10 == 0 || d == ips.size) onProgress(d, snapshot())
+                        }
+                    }
+                }.awaitAll()
+                snapshot()
             }
-        }.awaitAll()
-        snapshot()
+        } finally {
+            pool.shutdownNow()
+        }
     }
 }
