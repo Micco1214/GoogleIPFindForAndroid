@@ -5,7 +5,9 @@
 
     <application
         android:allowBackup="false"
-        android:label="翻译IP测速"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:label="谷歌IP测速"
         android:theme="@android:style/Theme.Material.Light.NoActionBar">
         <activity
             android:name=".MainActivity"

@@ -31,12 +31,13 @@ class IpRepository(private val ctx: Context) {
     }
 
     companion object {
-        // 来自作者的 IP 库仓库 GoodCoder666/gtdb（src/ip.txt 与 full/v4.txt）。
-        // 如果下载不了，可以在界面里填自定义 URL（如 GitHub 代理镜像），或从剪贴板导入。
-        const val OFFICIAL =
+        // 与原项目 README「关于在线同步功能」中的三个库一致
+        const val OFFICIAL_V4 =
             "https://raw.githubusercontent.com/GoodCoder666/gtdb/main/src/ip.txt"
-        const val SUPER_V4 =
-            "https://raw.githubusercontent.com/GoodCoder666/gtdb/main/full/v4.txt"
+        const val EXT_V4 =
+            "https://raw.githubusercontent.com/Ponderfly/GoogleTranslateIpCheck/master/src/GoogleTranslateIpCheck/GoogleTranslateIpCheck/ip.txt"
+        const val EXT_V6 =
+            "https://raw.githubusercontent.com/Ponderfly/GoogleTranslateIpCheck/master/src/GoogleTranslateIpCheck/GoogleTranslateIpCheck/IPv6.txt"
 
         private val IP_CHARS = Regex("^[0-9a-fA-F:.]+$")
 

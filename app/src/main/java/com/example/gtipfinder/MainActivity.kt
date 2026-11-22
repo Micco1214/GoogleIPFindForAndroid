@@ -5,6 +5,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -59,24 +60,39 @@ fun App(vm: MainViewModel = viewModel()) {
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 item {
-                    Text("谷歌翻译 IP 测速", style = MaterialTheme.typography.headlineSmall)
+                    Text("谷歌IP测速", style = MaterialTheme.typography.headlineSmall)
                 }
                 item { Text("IP 库：${s.ipCount} 个    ${s.message}") }
 
-                // ---- IP 库导入 ----
+                // ---- IP 库导入（原项目 README 里的三个库）----
+                item { Text("同步 IP 库", style = MaterialTheme.typography.titleSmall) }
                 item {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         OutlinedButton(
-                            onClick = { vm.importUrl(IpRepository.OFFICIAL) },
+                            onClick = { vm.importUrl(IpRepository.OFFICIAL_V4) },
                             enabled = !s.running,
+                            contentPadding = PaddingValues(horizontal = 4.dp),
                             modifier = Modifier.weight(1f),
-                        ) { Text("同步精简库") }
+                        ) { Text("官方 IPv4") }
                         OutlinedButton(
-                            onClick = { vm.importUrl(IpRepository.SUPER_V4) },
+                            onClick = { vm.importUrl(IpRepository.EXT_V4) },
                             enabled = !s.running,
+                            contentPadding = PaddingValues(horizontal = 4.dp),
                             modifier = Modifier.weight(1f),
-                        ) { Text("同步超级库") }
+                        ) { Text("扩展 IPv4") }
+                        OutlinedButton(
+                            onClick = { vm.importUrl(IpRepository.EXT_V6) },
+                            enabled = !s.running,
+                            contentPadding = PaddingValues(horizontal = 4.dp),
+                            modifier = Modifier.weight(1f),
+                        ) { Text("扩展 IPv6") }
                     }
+                }
+                item {
+                    Text(
+                        "IPv6 普遍不太稳定，非必要不要用；如要用，建议把下面的「次数」调到 10。",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
                 }
                 item {
                     OutlinedTextField(

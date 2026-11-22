@@ -1,4 +1,4 @@
-# 翻译IP测速（Android）
+# 谷歌IP测速（Android）
 
 移植自 GoodCoder666/GoogleTranslate_IPFinder 的「测速」功能（GPL-3.0-or-later，
 本项目同样以 GPL-3.0 许可开源）。
@@ -8,7 +8,7 @@
 2. 连接手机或模拟器，点 Run；或 Build > Build APK(s)。
 
 ## 使用
-1. 点「同步精简库」下载 IP 库（下不了就填自定义 URL，或把 IP 列表复制后点「剪贴板导入」）。
+1. 在「同步 IP 库」里点「官方 IPv4 / 扩展 IPv4 / 扩展 IPv6」下载（与原项目 README 的三个库一致，可叠加导入；下不了就填自定义 URL，或把 IP 列表复制后点「剪贴板导入」）。
 2. 点「开始测速」。每个 IP 需连续成功「次数」次才算可用（默认 3 次，与原项目一致）。
 3. 复制最快 IP，自行用于 hosts / 代理 / DNS 设置。hosts 行格式：`<IP> translate.googleapis.com`
 
